@@ -56,8 +56,7 @@
       const maxY = Math.max(0, field.clientHeight - size);
       target.style.left = `${Math.random()*maxX}px`;
       target.style.top = `${Math.random()*maxY}px`;
-      target.textContent = faces[Math.floor(Math.random()*faces.length)];
-      target.style.background = `linear-gradient(145deg,${["#ff9fc1","#b69cf2","#94e5ca","#ffd975"][Math.floor(Math.random()*4)]},#ff76a7)`;
+      target.querySelector("span").textContent = faces[Math.floor(Math.random()*faces.length)];
       roundTime = Math.max(760,1500-hits*25);
       const level = hits<6 ? [1,"Calminho"] : hits<13 ? [2,"Ligeiro"] : hits<20 ? [3,"Frenético"] : [4,"Impossível"];
       $("levelBadge").textContent=`Nível ${level[0]} · ${level[1]}`;
@@ -118,13 +117,16 @@
       $("ranking").innerHTML=data.map((p,i)=>`<li class="${p.name.toLocaleLowerCase("pt-BR")===playerName.toLocaleLowerCase("pt-BR")?'me':''}"><span class="rank-num">${i<3?["🥇","🥈","🥉"][i]:i+1}</span><span class="rank-name">${escapeHtml(p.name)}</span><span class="rank-score">${Number(p.score)||0}</span></li>`).join("");
     }
     function escapeHtml(v) { const d=document.createElement("div"); d.textContent=String(v); return d.innerHTML; }
-    function openRanking(){ $("rankingModal").classList.remove("hidden"); loadRanking(); }
+    function openRanking(){ $("rankingModal").classList.remove("hidden"); $("closeRanking").focus(); loadRanking(); }
+    function closeRanking(){ $("rankingModal").classList.add("hidden"); $("rankingBtn").focus(); }
     $("playBtn").addEventListener("click",startGame);
     $("againBtn").addEventListener("click",startGame);
     $("homeBtn").addEventListener("click",()=>show("welcome"));
     $("rankingBtn").addEventListener("click",openRanking);
-    $("closeRanking").addEventListener("click",()=>$("rankingModal").classList.add("hidden"));
-    $("rankingModal").addEventListener("click",e=>{if(e.target===$("rankingModal")) $("rankingModal").classList.add("hidden")});
-    $("soundBtn").addEventListener("click",()=>{ soundOn=!soundOn; $("soundBtn").textContent=soundOn?"♫ Som ligado":"♫ Som desligado"; $("soundBtn").classList.toggle("on",soundOn); if(soundOn){initAudio();startLofi()}else stopLofi(); });
+    $("closeRanking").addEventListener("click",closeRanking);
+    $("rankingModal").addEventListener("click",e=>{if(e.target===$("rankingModal")) closeRanking()});
+    $("soundBtn").addEventListener("click",()=>{ soundOn=!soundOn; $("soundBtn").innerHTML=`<span class="sound-dot"></span>${soundOn?"Som ligado":"Som desligado"}`; $("soundBtn").classList.toggle("is-on",soundOn); $("soundBtn").setAttribute("aria-pressed",String(soundOn)); if(soundOn){initAudio();startLofi()}else stopLofi(); });
+    $("playerName").addEventListener("keydown",e=>{if(e.key==="Enter") startGame()});
+    document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("rankingModal").classList.contains("hidden")) closeRanking()});
     $("target").addEventListener("pointerdown",hit);
     window.addEventListener("resize",()=>{ if(active) moveTarget(); });

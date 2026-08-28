@@ -1,58 +1,44 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#100d1d">
+  <meta name="theme-color" content="#17111f">
+  <meta name="description" content="Pega-Pompom: um desafio fofo de reflexo e velocidade.">
   <title>Pega-Pompom!</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;600;700&family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
-  <div class="kawaii-sky" aria-hidden="true"><span class="kawaii-float k1">🌙</span><span class="kawaii-float k2">🍓</span><span class="kawaii-float k3">🧁</span><span class="kawaii-float k4">⭐</span></div>
-
-  <section class="screen center" id="welcome">
-    <div class="card">
-      <div class="mascot" aria-hidden="true"><i class="ear"></i><i class="ear right"></i><i class="face"></i><i class="eye left"></i><i class="eye right"></i><i class="cheek left"></i><i class="cheek right"></i><i class="mouth"></i></div>
-      <span class="tag">✦ desafio relâmpago ✦</span>
-      <h1>Pega-Pompom!</h1>
-      <p class="lead">O pompom é rápido e arteiro! Você tem <b>1,5 segundo</b> para dar carinho nele antes que ele fuja. ૮ ˶ᵔ ᵕ ᵔ˶ ა</p>
-      <div class="how"><div><span>👆</span>Toque rápido</div><div><span>💗</span>3 vidas</div><div><span>✨</span>Faça combos</div></div>
-      <div class="name-box"><label for="playerName">Seu nome no ranking</label><input id="playerName" maxlength="18" autocomplete="nickname" placeholder="Ex.: Gatinha Cósmica"></div>
-      <button class="primary" id="playBtn">Jogar agora! ૮₍ ˃ ᵕ ˂ ₎ა</button>
-      <div class="mini-actions"><button class="icon-btn on" id="soundBtn">♫ Som ligado</button><button class="icon-btn" id="rankingBtn">🏆 Ver ranking</button></div>
-      <div class="best">🏆 Melhor pontuação: <span id="welcomeBest">0</span></div>
-    </div>
+  <div class="night-sky" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+  <section class="screen welcome-screen" id="welcome">
+    <main class="welcome-shell">
+      <section class="brand-stage" aria-label="Pega-Pompom">
+        <div class="brand-copy"><span class="edition">edição da meia-noite · 01</span><h1>Pega-<br><em>Pompom!</em></h1><p>Um bichinho ligeiro, três corações e só 1,5 segundo para dar carinho.</p></div>
+        <div class="pompom-window" aria-hidden="true"><span class="orbit orbit-one">✦</span><span class="orbit orbit-two">♡</span><div class="pompom-character"><i class="pompom-ear left"></i><i class="pompom-ear right"></i><div class="pompom-head"><i class="pompom-eye left"></i><i class="pompom-eye right"></i><i class="pompom-nose"></i><i class="pompom-cheek left"></i><i class="pompom-cheek right"></i></div></div><span class="character-note">pronto para fugir</span></div>
+      </section>
+      <section class="start-panel">
+        <div class="panel-heading"><span class="step-mark">01</span><div><p>Prepare seus dedinhos</p><h2>Qual nome vai para o placar?</h2></div></div>
+        <label class="name-field" for="playerName"><span>Seu apelido</span><input id="playerName" maxlength="18" autocomplete="nickname" placeholder="Gatinha Cósmica" required><small>Sem cadastro. Só vale o seu maior placar.</small></label>
+        <div class="rules" aria-label="Como jogar"><div><b>1,5s</b><span>para tocar</span></div><div><b>3</b><span>corações</span></div><div><b>5×</b><span>combo máximo</span></div></div>
+        <button class="button button-primary" id="playBtn"><span>Começar a caçada</span><b aria-hidden="true">→</b></button>
+        <div class="start-footer"><button class="text-button sound-toggle is-on" id="soundBtn" aria-pressed="true"><span class="sound-dot"></span>Som ligado</button><button class="text-button" id="rankingBtn">Ver melhores <span aria-hidden="true">↗</span></button><p>Seu recorde <strong id="welcomeBest">0</strong></p></div>
+      </section>
+    </main>
   </section>
-
-  <section class="screen hidden" id="game">
-    <header class="hud">
-      <div class="pill"><small>Pontos</small><strong id="score">0</strong></div>
-      <div class="pill"><small>Vidas</small><strong class="lives" id="lives">♥ ♥ ♥</strong></div>
-      <div class="pill right"><small>Combo</small><strong id="combo">x1</strong></div>
-    </header>
-    <div class="mission">Missão: <b id="missionText">acerte 5 pompons</b> <span id="missionProgress">0/5</span></div>
-    <div class="timer-wrap"><div class="timer" id="timer"></div></div>
-    <div class="playfield" id="playfield"><button class="target" id="target" aria-label="Clique no pompom">🐰</button><div class="level-badge" id="levelBadge">Nível 1 · Calminho</div></div>
+  <section class="screen game-screen hidden" id="game" aria-label="Partida em andamento">
+    <header class="game-header"><div class="game-brand"><span class="mini-face">•ᴗ•</span><strong>Pega-Pompom</strong></div><div class="hud" aria-label="Placar da partida"><div class="hud-item"><span>Pontos</span><strong id="score">0</strong></div><div class="hud-item lives-item"><span>Vidas</span><strong class="lives" id="lives">♥ ♥ ♥</strong></div><div class="hud-item"><span>Combo</span><strong id="combo">x1</strong></div></div></header>
+    <div class="mission-row"><div class="mission-copy"><span class="mission-kicker">Missão atual</span><strong id="missionText">acerte 5 pompons</strong></div><span class="mission-count" id="missionProgress">0/5</span></div>
+    <div class="timer-track" aria-label="Tempo restante"><div class="timer" id="timer"></div></div>
+    <div class="playfield" id="playfield"><span class="field-star s1" aria-hidden="true">✦</span><span class="field-star s2" aria-hidden="true">·</span><span class="field-star s3" aria-hidden="true">✦</span><div class="level-badge" id="levelBadge">Nível 1 · Calminho</div><p class="field-hint">ache o bichinho!</p><button class="target" id="target" aria-label="Toque no pompom"><span>🐰</span><small>pega!</small></button></div>
   </section>
-
-  <section class="screen center hidden" id="result">
-    <div class="card">
-      <div class="result-icon" id="resultIcon">🌟</div>
-      <span class="tag">fim de jogo</span>
-      <h2 id="resultTitle">Mandou bem!</h2>
-      <p class="lead" id="resultMessage">Esse pompom não teve a menor chance.</p>
-      <div class="stats"><div class="stat"><strong id="finalScore">0</strong><small>pontos</small></div><div class="stat"><strong id="finalHits">0</strong><small>acertos</small></div><div class="stat"><strong id="finalBest">0</strong><small>recorde</small></div></div>
-      <ul class="mission-list" id="missionList"></ul>
-      <div class="result-actions"><button class="primary" id="againBtn">Mais uma! ♡</button><button class="soft" id="homeBtn">Voltar ao cantinho</button></div>
-    </div>
+  <section class="screen result-screen hidden" id="result">
+    <main class="result-card"><div class="result-stamp" id="resultIcon" aria-hidden="true">🌟</div><p class="result-kicker">Fim da caçada</p><h2 id="resultTitle">Mandou bem!</h2><p class="result-message" id="resultMessage">Esse pompom não teve a menor chance.</p><div class="scoreboard"><div class="score-main"><span>Seu placar</span><strong id="finalScore">0</strong></div><div><span>Acertos</span><strong id="finalHits">0</strong></div><div><span>Recorde</span><strong id="finalBest">0</strong></div></div><ul class="mission-list" id="missionList" aria-label="Missões da partida"></ul><div class="result-actions"><button class="button button-primary" id="againBtn">Jogar outra vez <b>↻</b></button><button class="button button-secondary" id="homeBtn">Voltar ao início</button></div></main>
   </section>
-  <div class="toast" id="toast">Missão completa! ✨</div>
-  <div class="streak" id="streak">PERFEITO! ✦</div>
-  <div class="modal hidden" id="rankingModal">
-    <div class="modal-card"><div class="modal-head"><h2>🏆 Top jogadores</h2><button class="close" id="closeRanking" aria-label="Fechar">×</button></div><p class="rank-status" id="rankStatus">Carregando estrelinhas…</p><ol class="ranking" id="ranking"></ol></div>
-  </div>
-
+  <div class="toast" id="toast" role="status" aria-live="polite">Missão completa! ✦</div><div class="streak" id="streak" aria-live="polite">PERFEITO!</div>
+  <div class="modal hidden" id="rankingModal" role="dialog" aria-modal="true" aria-labelledby="rankingTitle"><div class="ranking-sheet"><header><div><span>Hall dos pompons</span><h2 id="rankingTitle">Melhores caçadores</h2></div><button class="close-button" id="closeRanking" aria-label="Fechar ranking">×</button></header><p class="rank-status" id="rankStatus">Buscando os melhores placares…</p><ol class="ranking" id="ranking"></ol></div></div>
   <script src="./script.js" defer></script>
 </body>
 </html>
