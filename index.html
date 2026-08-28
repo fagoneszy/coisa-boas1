@@ -1,14 +1,337 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="refresh" content="0; url=./jogo-clique.html">
-  <meta name="theme-color" content="#100d1d">
-  <title>Abrindo Pega-Pompom…</title>
-  <script>location.replace('./jogo-clique.html');</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#100d1d">
+  <title>Pega-Pompom!</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@600;700;800&display=swap');
+    :root {
+      --ink: #51405d;
+      --pink: #ff76a7;
+      --pink2: #ff9fc1;
+      --purple: #9c7ce8;
+      --yellow: #ffd86b;
+      --mint: #88dfc2;
+      --cream: #fffaf3;
+      --white: rgba(255,255,255,.88);
+      --shadow: 0 15px 40px rgba(105,71,124,.16);
+    }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; min-height: 100%; margin: 0; overflow-x: hidden; }
+    body {
+      font-family: "Nunito", sans-serif;
+      color: var(--ink);
+      background: linear-gradient(150deg, #fff2f7 0%, #f2edff 50%, #e8fff8 100%);
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body::before {
+      content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .45;
+      background-image: radial-gradient(#fff 2px, transparent 2px);
+      background-size: 24px 24px;
+    }
+    .blob { position: fixed; border-radius: 50%; filter: blur(2px); opacity: .55; animation: drift 7s ease-in-out infinite; }
+    .b1 { width: 240px; height: 240px; left: -90px; top: -80px; background: #ffc2d8; }
+    .b2 { width: 190px; height: 190px; right: -50px; bottom: -40px; background: #a9efd7; animation-delay: -3s; }
+    .b3 { width: 110px; height: 110px; right: 8%; top: 10%; background: #ded0ff; animation-delay: -5s; }
+    .screen { position: relative; z-index: 2; width: 100%; min-height: 100dvh; padding: max(24px, env(safe-area-inset-top)) 18px max(30px, env(safe-area-inset-bottom)); }
+    .center { display: grid; place-items: center; }
+    .hidden { display: none !important; }
+    .card {
+      width: min(520px, 100%); padding: clamp(26px, 7vw, 44px); text-align: center;
+      background: var(--white); border: 2px solid white; border-radius: 34px;
+      box-shadow: var(--shadow); backdrop-filter: blur(14px); animation: appear .55s cubic-bezier(.2,.9,.25,1.15);
+    }
+    .mascot { position: relative; width: 112px; height: 102px; margin: 0 auto 17px; }
+    .ear { position: absolute; top: 5px; width: 48px; height: 55px; border-radius: 70% 20% 55% 35%; background: var(--pink2); transform: rotate(-26deg); }
+    .ear.right { right: 0; transform: scaleX(-1) rotate(-26deg); }
+    .face { position: absolute; inset: 17px 7px 0; border-radius: 48% 48% 45% 45%; background: #fff; box-shadow: inset 0 -7px #fff0f5, 0 8px 20px rgba(109,64,92,.12); }
+    .eye { position: absolute; top: 40px; width: 9px; height: 13px; border-radius: 50%; background: var(--ink); }
+    .eye.left { left: 35px; } .eye.right { right: 35px; }
+    .mouth { position: absolute; left: 50%; top: 60px; width: 17px; height: 10px; border: 3px solid var(--ink); border-top: 0; border-radius: 0 0 15px 15px; transform: translateX(-50%); }
+    .cheek { position: absolute; top: 58px; width: 18px; height: 9px; border-radius: 50%; background: #ffc4d8; }
+    .cheek.left { left: 19px; } .cheek.right { right: 19px; }
+    .tag { display: inline-block; padding: 7px 13px; border-radius: 999px; background: #eee7ff; color: #7359b5; font-size: .76rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+    h1, h2 { font-family: "Baloo 2", sans-serif; line-height: 1; }
+    h1 { margin: 14px 0 9px; font-size: clamp(2.8rem, 11vw, 4.7rem); color: var(--pink); letter-spacing: -.05em; text-shadow: 0 4px white; }
+    h2 { margin: 10px 0; font-size: 2.2rem; }
+    .lead { margin: 0 auto 22px; max-width: 390px; color: #806e87; line-height: 1.5; font-size: .98rem; }
+    .how { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin: 0 0 24px; }
+    .how div { padding: 12px 5px; border-radius: 16px; background: #fff8dd; font-size: .76rem; font-weight: 800; }
+    .how span { display: block; font-size: 1.45rem; margin-bottom: 4px; }
+    button { border: 0; font: inherit; cursor: pointer; color: inherit; }
+    .primary { width: 100%; padding: 16px 20px; border-radius: 18px; background: linear-gradient(135deg,var(--pink),#ff91b8); color: white; font-weight: 900; font-size: 1.05rem; box-shadow: 0 8px 0 #dd5f8c, 0 13px 25px rgba(255,118,167,.25); transition: transform .12s, box-shadow .12s; }
+    .primary:active { transform: translateY(6px); box-shadow: 0 2px 0 #dd5f8c; }
+    .best { margin-top: 18px; font-size: .82rem; font-weight: 800; color: #9a879f; }
+
+    #game { height: 100dvh; min-height: 520px; overflow: hidden; padding-left: max(12px,env(safe-area-inset-left)); padding-right: max(12px,env(safe-area-inset-right)); }
+    .hud { position: relative; z-index: 5; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; width: min(720px,100%); margin: auto; }
+    .pill { min-width: 0; padding: 9px 12px; border: 2px solid white; border-radius: 16px; background: rgba(255,255,255,.82); box-shadow: 0 6px 16px rgba(92,67,112,.1); backdrop-filter: blur(8px); }
+    .pill small { display: block; color: #9b8aa0; font-size: .61rem; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
+    .pill strong { display: block; font-family: "Baloo 2"; font-size: 1.35rem; line-height: 1.05; }
+    .pill.right { text-align: right; }
+    .lives { font-size: 1.12rem; letter-spacing: 2px; white-space: nowrap; }
+    .mission { position: relative; z-index: 5; width: min(470px,calc(100% - 18px)); margin: 12px auto 0; padding: 9px 13px; text-align: center; border-radius: 14px; background: rgba(255,255,255,.68); color: #7d6986; font-size: .78rem; font-weight: 800; }
+    .mission b { color: var(--purple); }
+    .timer-wrap { position: relative; z-index: 5; width: min(520px,calc(100% - 24px)); height: 10px; margin: 11px auto 0; border: 2px solid white; border-radius: 99px; background: rgba(255,255,255,.5); overflow: hidden; }
+    .timer { height: 100%; width: 100%; border-radius: inherit; background: linear-gradient(90deg,var(--mint),var(--yellow),var(--pink)); transform-origin: left; }
+    .playfield { position: absolute; inset: 124px 10px 12px; overflow: hidden; border-radius: 30px; }
+    .target {
+      position: absolute; width: clamp(76px,20vw,96px); aspect-ratio: 1; display: grid; place-items: center;
+      border-radius: 50%; background: linear-gradient(145deg,#ff9fc1,#ff6fa3); color: white;
+      box-shadow: inset 0 5px rgba(255,255,255,.35), 0 8px 0 #d95887, 0 13px 24px rgba(123,70,106,.22);
+      font-size: clamp(2rem,8vw,2.8rem); touch-action: manipulation; animation: targetIn .18s cubic-bezier(.2,1.5,.5,1);
+    }
+    .target::after { content: "TOCA!"; position: absolute; bottom: 12px; font-size: .55rem; letter-spacing: .09em; font-weight: 900; }
+    .target:active { transform: translateY(5px) scale(.95); box-shadow: inset 0 3px rgba(255,255,255,.35), 0 3px 0 #d95887; }
+    .pop-score { position: absolute; z-index: 8; color: var(--purple); font-family: "Baloo 2"; font-size: 1.5rem; font-weight: 900; pointer-events: none; animation: scoreUp .65s ease forwards; }
+    .toast { position: fixed; z-index: 20; left: 50%; top: 19%; padding: 10px 18px; border-radius: 999px; background: var(--ink); color: white; font-weight: 900; transform: translate(-50%,-20px); opacity: 0; pointer-events: none; white-space: nowrap; }
+    .toast.show { animation: toast .9s ease; }
+
+    .result-icon { font-size: 4.8rem; animation: bounce 1.1s ease-in-out infinite; }
+    .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; margin: 22px 0; }
+    .stat { padding: 13px 5px; border-radius: 17px; background: #f6f0ff; }
+    .stat strong { display: block; font-family: "Baloo 2"; font-size: 1.55rem; line-height: 1; color: var(--purple); }
+    .stat small { font-size: .68rem; color: #8e7d94; font-weight: 900; text-transform: uppercase; }
+    .result-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .soft { padding: 15px; border-radius: 18px; background: #eee7ff; color: #6f57a7; font-weight: 900; }
+    .mission-list { margin: 0 0 22px; padding: 0; list-style: none; text-align: left; display: grid; gap: 8px; }
+    .mission-list li { padding: 10px 13px; background: #fff8dd; border-radius: 13px; font-size: .8rem; font-weight: 800; }
+    .mission-list .done { background: #e5fff5; color: #39876e; }
+
+    @keyframes appear { from { opacity: 0; transform: translateY(18px) scale(.96); } }
+    @keyframes drift { 50% { transform: translate(18px,22px) scale(1.08); } }
+    @keyframes targetIn { from { transform: scale(.2) rotate(-15deg); opacity: 0; } }
+    @keyframes scoreUp { to { transform: translateY(-60px) scale(1.2); opacity: 0; } }
+    @keyframes toast { 20%,75% { opacity: 1; transform: translate(-50%,0); } }
+    @keyframes bounce { 50% { transform: translateY(-8px) rotate(5deg); } }
+    @media (max-width: 420px) {
+      .card { padding: 24px 18px; border-radius: 28px; }
+      .mascot { transform: scale(.86); margin-top: -8px; margin-bottom: 3px; }
+      .lead { font-size: .9rem; margin-bottom: 17px; }
+      .how { margin-bottom: 18px; }
+      .hud { grid-template-columns: 1fr auto 1fr; }
+      .pill { padding: 8px 9px; }
+      .pill strong { font-size: 1.15rem; }
+      .playfield { inset-top: 120px; }
+      .result-actions { grid-template-columns: 1fr; }
+    }
+    @media (max-height: 760px) and (min-width: 421px) {
+      .center { place-items: start center; }
+      .card { padding-top: 25px; padding-bottom: 25px; }
+      .mascot { transform: scale(.78); margin-top: -14px; margin-bottom: -6px; }
+      h1 { margin-top: 7px; font-size: 3.35rem; }
+      .lead { margin-bottom: 16px; }
+      .how { margin-bottom: 17px; }
+    }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms!important; animation-iteration-count:1!important; } }
+
+    /* Dark candy theme */
+    :root { --ink:#f5efff; --white:rgba(27,22,45,.88); --cream:#161225; --shadow:0 22px 65px rgba(0,0,0,.42); }
+    body { background:radial-gradient(circle at 20% 10%,#31204c 0,transparent 30%),radial-gradient(circle at 85% 85%,#173b3c 0,transparent 32%),linear-gradient(145deg,#0d0a17,#171126 52%,#0b1619); }
+    body::before { opacity:.12; }
+    .b1{background:#a83771;opacity:.23}.b2{background:#278a78;opacity:.2}.b3{background:#7659bd;opacity:.25}
+    .card{background:linear-gradient(145deg,rgba(35,28,56,.94),rgba(20,17,34,.94));border:1px solid rgba(255,255,255,.13);box-shadow:var(--shadow),inset 0 1px rgba(255,255,255,.08)}
+    .lead,.best{color:#b9acc7}.tag{background:#302650;color:#c5aeff}.how div{background:#211b32;border:1px solid rgba(255,255,255,.07)}
+    .face{background:#fff7fc;box-shadow:inset 0 -7px #f6dce8,0 0 35px rgba(255,118,167,.25)}
+    .pill,.mission{background:rgba(27,22,45,.86);border-color:rgba(255,255,255,.12);box-shadow:0 8px 25px rgba(0,0,0,.25)}
+    .pill small{color:#a89ab4}.mission{color:#b9acc7}.timer-wrap{border-color:rgba(255,255,255,.16);background:#211a31}
+    .stat{background:#251e39}.stat small{color:#aa9ab6}.mission-list li{background:#241d34}.mission-list .done{background:#16382f;color:#78e1bc}.soft{background:#30264b;color:#c5afff}
+    .name-box{margin:0 0 12px;text-align:left}.name-box label{display:block;margin:0 0 6px 4px;color:#b9acc7;font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
+    .name-box input{width:100%;padding:14px 16px;border:1px solid rgba(255,255,255,.14);border-radius:16px;outline:0;background:#171323;color:white;font:800 1rem "Nunito";box-shadow:inset 0 2px 8px rgba(0,0,0,.25)}
+    .name-box input:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(255,118,167,.14)}
+    .mini-actions{display:flex;justify-content:center;gap:9px;margin-top:14px}.icon-btn{padding:9px 13px;border:1px solid rgba(255,255,255,.1);border-radius:999px;background:#211b32;color:#cabed3;font-size:.76rem;font-weight:900}
+    .icon-btn.on{color:#8fe4c7;border-color:#3c8872}.streak{position:fixed;z-index:15;left:50%;top:29%;font:900 clamp(2rem,10vw,4.5rem) "Baloo 2";color:#ffd86b;text-shadow:0 0 25px #ff8c42;pointer-events:none;opacity:0;transform:translate(-50%,20px) scale(.5)}
+    .streak.show{animation:streakPop .65s ease}.level-badge{position:absolute;z-index:6;right:20px;bottom:18px;padding:8px 12px;border-radius:999px;background:rgba(25,20,40,.8);color:#bda8e8;font-size:.72rem;font-weight:900;border:1px solid rgba(255,255,255,.1)}
+    .modal{position:fixed;z-index:40;inset:0;display:grid;place-items:center;padding:18px;background:rgba(5,3,10,.76);backdrop-filter:blur(8px)}.modal-card{width:min(460px,100%);max-height:82dvh;overflow:auto;padding:25px;border:1px solid rgba(255,255,255,.13);border-radius:28px;background:#181326;box-shadow:0 25px 80px #000}.modal-head{display:flex;justify-content:space-between;align-items:center}.modal-head h2{margin:0}.close{width:38px;height:38px;border-radius:50%;background:#2b233e;color:white;font-size:1.2rem}.ranking{margin:20px 0 0;padding:0;list-style:none;display:grid;gap:8px}.ranking li{display:grid;grid-template-columns:34px 1fr auto;align-items:center;padding:12px 14px;border-radius:14px;background:#211a31}.ranking li.me{outline:1px solid var(--pink);background:#302037}.rank-num{font-weight:900;color:#907ba0}.rank-name{font-weight:900;overflow:hidden;text-overflow:ellipsis}.rank-score{color:#ffd86b;font:900 1.1rem "Baloo 2"}.rank-status{text-align:center;color:#a99bb4;font-size:.82rem}
+    .kawaii-sky{position:fixed;z-index:1;inset:0;pointer-events:none;overflow:hidden}.kawaii-float{position:absolute;display:grid;place-items:center;width:54px;height:54px;border:1px solid rgba(255,255,255,.13);border-radius:19px;background:rgba(36,28,55,.65);box-shadow:0 0 28px rgba(255,119,175,.12);font-size:1.65rem;animation:kawaiiFloat 5s ease-in-out infinite}.k1{left:5%;top:17%;transform:rotate(-8deg)}.k2{right:6%;top:12%;animation-delay:-1.7s}.k3{left:7%;bottom:10%;animation-delay:-3.1s}.k4{right:7%;bottom:15%;animation-delay:-4.2s}.kawaii-float::after{content:"˶ᵔ ᵕ ᵔ˶";position:absolute;bottom:-15px;color:#d8bdeb;font-size:.48rem;font-weight:900;white-space:nowrap}
+    h1{background:linear-gradient(180deg,#ffb6d1,#ff71a8);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 5px 10px rgba(255,85,151,.2))}.primary{border:1px solid rgba(255,255,255,.22);box-shadow:0 7px 0 #b74877,0 0 30px rgba(255,101,161,.19)}
+    .target{border:2px solid rgba(255,255,255,.6);box-shadow:inset 0 5px rgba(255,255,255,.38),0 8px 0 #a94370,0 0 32px rgba(255,112,169,.3)}.target::before{content:"✦";position:absolute;right:5px;top:4px;color:#fff7b3;font-size:.9rem;animation:twinkle .8s ease-in-out infinite alternate}
+    .timer{box-shadow:0 0 14px rgba(255,118,167,.5)}.tag::before,.tag::after{content:"♡";margin:0 5px;color:#ff91bc}.pill strong{color:#fff}.lives{color:#ff7cac!important;text-shadow:0 0 12px rgba(255,92,151,.5)}
+    @keyframes kawaiiFloat{50%{transform:translateY(-12px) rotate(6deg)}}@keyframes twinkle{to{transform:scale(1.4) rotate(25deg);opacity:.55}}
+    @media(max-width:720px){.kawaii-float{width:38px;height:38px;border-radius:13px;font-size:1.15rem;opacity:.55}.k1{left:-8px}.k2{right:-7px}.k3{left:-5px}.k4{right:-6px}}
+    @keyframes streakPop{35%{opacity:1;transform:translate(-50%,0) scale(1.12)}75%{opacity:1}to{opacity:0;transform:translate(-50%,-35px) scale(1)}}
+  </style>
 </head>
-<body style="margin:0;background:#100d1d;color:#fff;font-family:system-ui;display:grid;place-items:center;min-height:100vh">
-  <p>Abrindo o jogo… <a href="./jogo-clique.html" style="color:#ff91bc">toque aqui</a>.</p>
+<body>
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+  <div class="kawaii-sky" aria-hidden="true"><span class="kawaii-float k1">🌙</span><span class="kawaii-float k2">🍓</span><span class="kawaii-float k3">🧁</span><span class="kawaii-float k4">⭐</span></div>
+
+  <section class="screen center" id="welcome">
+    <div class="card">
+      <div class="mascot" aria-hidden="true"><i class="ear"></i><i class="ear right"></i><i class="face"></i><i class="eye left"></i><i class="eye right"></i><i class="cheek left"></i><i class="cheek right"></i><i class="mouth"></i></div>
+      <span class="tag">✦ desafio relâmpago ✦</span>
+      <h1>Pega-Pompom!</h1>
+      <p class="lead">O pompom é rápido e arteiro! Você tem <b>1,5 segundo</b> para dar carinho nele antes que ele fuja. ૮ ˶ᵔ ᵕ ᵔ˶ ა</p>
+      <div class="how"><div><span>👆</span>Toque rápido</div><div><span>💗</span>3 vidas</div><div><span>✨</span>Faça combos</div></div>
+      <div class="name-box"><label for="playerName">Seu nome no ranking</label><input id="playerName" maxlength="18" autocomplete="nickname" placeholder="Ex.: Gatinha Cósmica"></div>
+      <button class="primary" id="playBtn">Jogar agora! ૮₍ ˃ ᵕ ˂ ₎ა</button>
+      <div class="mini-actions"><button class="icon-btn on" id="soundBtn">♫ Som ligado</button><button class="icon-btn" id="rankingBtn">🏆 Ver ranking</button></div>
+      <div class="best">🏆 Melhor pontuação: <span id="welcomeBest">0</span></div>
+    </div>
+  </section>
+
+  <section class="screen hidden" id="game">
+    <header class="hud">
+      <div class="pill"><small>Pontos</small><strong id="score">0</strong></div>
+      <div class="pill"><small>Vidas</small><strong class="lives" id="lives">♥ ♥ ♥</strong></div>
+      <div class="pill right"><small>Combo</small><strong id="combo">x1</strong></div>
+    </header>
+    <div class="mission">Missão: <b id="missionText">acerte 5 pompons</b> <span id="missionProgress">0/5</span></div>
+    <div class="timer-wrap"><div class="timer" id="timer"></div></div>
+    <div class="playfield" id="playfield"><button class="target" id="target" aria-label="Clique no pompom">🐰</button><div class="level-badge" id="levelBadge">Nível 1 · Calminho</div></div>
+  </section>
+
+  <section class="screen center hidden" id="result">
+    <div class="card">
+      <div class="result-icon" id="resultIcon">🌟</div>
+      <span class="tag">fim de jogo</span>
+      <h2 id="resultTitle">Mandou bem!</h2>
+      <p class="lead" id="resultMessage">Esse pompom não teve a menor chance.</p>
+      <div class="stats"><div class="stat"><strong id="finalScore">0</strong><small>pontos</small></div><div class="stat"><strong id="finalHits">0</strong><small>acertos</small></div><div class="stat"><strong id="finalBest">0</strong><small>recorde</small></div></div>
+      <ul class="mission-list" id="missionList"></ul>
+      <div class="result-actions"><button class="primary" id="againBtn">Mais uma! ♡</button><button class="soft" id="homeBtn">Voltar ao cantinho</button></div>
+    </div>
+  </section>
+  <div class="toast" id="toast">Missão completa! ✨</div>
+  <div class="streak" id="streak">PERFEITO! ✦</div>
+  <div class="modal hidden" id="rankingModal">
+    <div class="modal-card"><div class="modal-head"><h2>🏆 Top jogadores</h2><button class="close" id="closeRanking" aria-label="Fechar">×</button></div><p class="rank-status" id="rankStatus">Carregando estrelinhas…</p><ol class="ranking" id="ranking"></ol></div>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    // Para ativar o ranking global, crie a tabela "scores" no Supabase com:
+    // name (text), score (int), hits (int), created_at (timestamptz/default now()).
+    // Ative INSERT e SELECT públicos via RLS e preencha os dois campos abaixo.
+    const SUPABASE = { url: "", anonKey: "" };
+    const screens = { welcome: $("welcome"), game: $("game"), result: $("result") };
+    const missions = [
+      { goal: 5, label: "Aquecimento", text: "acerte 5 pompons" },
+      { goal: 10, label: "Dedos ligeiros", text: "acerte 10 pompons" },
+      { goal: 15, label: "Mestre do toque", text: "acerte 15 pompons" }
+    ];
+    const faces = ["🐰","🐱","🐹","🐻","🐼","🐸"];
+    let score = 0, hits = 0, combo = 1, lives = 3, active = false, deadline = 0, frame = 0, missionIndex = 0, roundStarted = 0, roundTime = 1500;
+    let playerName = localStorage.getItem("pegaPompomName") || "", soundOn = true;
+    let best = Number(localStorage.getItem("pegaPompomBest") || 0);
+    $("welcomeBest").textContent = best;
+    $("playerName").value = playerName;
+
+    let audioCtx, musicTimer, musicStep = 0;
+    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === "suspended") audioCtx.resume(); }
+    function tone(freq, duration=.09, type="sine", volume=.055, delay=0) {
+      if (!soundOn) return; initAudio(); const now=audioCtx.currentTime+delay, osc=audioCtx.createOscillator(), gain=audioCtx.createGain();
+      osc.type=type; osc.frequency.setValueAtTime(freq,now); gain.gain.setValueAtTime(.0001,now); gain.gain.exponentialRampToValueAtTime(volume,now+.012); gain.gain.exponentialRampToValueAtTime(.0001,now+duration);
+      osc.connect(gain).connect(audioCtx.destination); osc.start(now); osc.stop(now+duration+.02);
+    }
+    function soundHit(perfect) { tone(perfect?740:540,.08,"sine",.07); tone(perfect?1110:810,.12,"sine",.045,.055); }
+    function soundMiss() { tone(180,.16,"triangle",.045); tone(130,.2,"triangle",.035,.1); }
+    function soundMission() { [523,659,784,1047].forEach((n,i)=>tone(n,.16,"sine",.04,i*.07)); }
+    function startLofi() {
+      if (!soundOn || musicTimer) return; initAudio();
+      const chords=[[220,261.6,329.6],[196,246.9,293.7],[174.6,220,261.6],[196,246.9,329.6]];
+      const play=()=>{ const chord=chords[musicStep++%chords.length]; chord.forEach((n,i)=>tone(n,.75,"sine",.012,i*.025)); tone(chord[0]/2,.22,"triangle",.018); };
+      play(); musicTimer=setInterval(play,900);
+    }
+    function stopLofi() { clearInterval(musicTimer); musicTimer=null; }
+
+    function show(name) { Object.entries(screens).forEach(([key,el]) => el.classList.toggle("hidden", key !== name)); }
+    function startGame() {
+      const input=$("playerName"); playerName=input.value.trim().replace(/[<>]/g,"").slice(0,18);
+      if (!playerName) { input.setCustomValidity("Escolha um nome fofinho para entrar no ranking!"); input.reportValidity(); input.focus(); return; }
+      input.setCustomValidity(""); localStorage.setItem("pegaPompomName",playerName); initAudio(); startLofi();
+      score = 0; hits = 0; combo = 1; lives = 3; missionIndex = 0; active = true;
+      show("game"); updateHud(); updateMission(); moveTarget(); startTimer();
+    }
+    function updateHud() {
+      $("score").textContent = score;
+      $("combo").textContent = `x${combo}`;
+      $("lives").textContent = Array(lives).fill("♥").join(" ") + Array(3-lives).fill("♡").join(" ");
+    }
+    function updateMission() {
+      const m = missions[Math.min(missionIndex,missions.length-1)];
+      $("missionText").textContent = missionIndex >= missions.length ? "todas completas!" : m.text;
+      $("missionProgress").textContent = missionIndex >= missions.length ? "✓" : `${Math.min(hits,m.goal)}/${m.goal}`;
+    }
+    function moveTarget() {
+      const field = $("playfield"), target = $("target");
+      const size = target.offsetWidth || 86;
+      const maxX = Math.max(0, field.clientWidth - size);
+      const maxY = Math.max(0, field.clientHeight - size);
+      target.style.left = `${Math.random()*maxX}px`;
+      target.style.top = `${Math.random()*maxY}px`;
+      target.textContent = faces[Math.floor(Math.random()*faces.length)];
+      target.style.background = `linear-gradient(145deg,${["#ff9fc1","#b69cf2","#94e5ca","#ffd975"][Math.floor(Math.random()*4)]},#ff76a7)`;
+      roundTime = Math.max(760,1500-hits*25);
+      const level = hits<6 ? [1,"Calminho"] : hits<13 ? [2,"Ligeiro"] : hits<20 ? [3,"Frenético"] : [4,"Impossível"];
+      $("levelBadge").textContent=`Nível ${level[0]} · ${level[1]}`;
+    }
+    function startTimer() {
+      cancelAnimationFrame(frame); roundStarted=performance.now(); deadline = roundStarted + roundTime;
+      function tick(now) {
+        if (!active) return;
+        const left = Math.max(0,(deadline-now)/roundTime);
+        $("timer").style.transform = `scaleX(${left})`;
+        if (left <= 0) miss(); else frame = requestAnimationFrame(tick);
+      }
+      frame = requestAnimationFrame(tick);
+    }
+    function hit(e) {
+      if (!active) return;
+      const response=performance.now()-roundStarted, perfect=response<430; const gained=(10 * combo)+(perfect?5:0); score += gained; hits++; combo = Math.min(5,combo+1); soundHit(perfect);
+      const pop = document.createElement("span"); pop.className = "pop-score"; pop.textContent = `+${gained}`;
+      pop.style.left = `${e.clientX - $("playfield").getBoundingClientRect().left - 15}px`;
+      pop.style.top = `${e.clientY - $("playfield").getBoundingClientRect().top - 10}px`;
+      $("playfield").appendChild(pop); setTimeout(() => pop.remove(),700);
+      if (perfect || combo===5) { const s=$("streak"); s.textContent=perfect?"PERFEITO! ✦":"COMBO MÁXIMO! 🔥"; s.classList.remove("show"); void s.offsetWidth; s.classList.add("show"); }
+      if (missionIndex < missions.length && hits >= missions[missionIndex].goal) { missionIndex++; showToast(); }
+      updateHud(); updateMission(); moveTarget(); startTimer();
+      if (navigator.vibrate) navigator.vibrate(18);
+    }
+    function miss() {
+      lives--; combo = 1; soundMiss(); updateHud();
+      if (navigator.vibrate) navigator.vibrate([50,40,50]);
+      if (lives <= 0) endGame(); else { moveTarget(); startTimer(); }
+    }
+    function showToast() { soundMission(); const t=$("toast"); t.classList.remove("show"); void t.offsetWidth; t.classList.add("show"); }
+    function endGame() {
+      active = false; cancelAnimationFrame(frame);
+      if (score > best) { best = score; localStorage.setItem("pegaPompomBest",best); }
+      $("finalScore").textContent = score; $("finalHits").textContent = hits; $("finalBest").textContent = best;
+      $("welcomeBest").textContent = best;
+      const rank = hits >= 15 ? ["Lendário!","Seus dedos são mais rápidos que a luz.","🏆"] : hits >= 8 ? ["Mandou bem!","O pompom suou para fugir de você.","🌟"] : ["Quase lá!","O pompom venceu essa, mas quer revanche!","💗"];
+      $("resultTitle").textContent=rank[0]; $("resultMessage").textContent=rank[1]; $("resultIcon").textContent=rank[2];
+      $("missionList").innerHTML = missions.map(m => `<li class="${hits>=m.goal?'done':''}">${hits>=m.goal?'✓':'○'} ${m.label}: ${m.text}</li>`).join("");
+      saveScore({name:playerName,score,hits}); show("result");
+    }
+    function localScores() { try { return JSON.parse(localStorage.getItem("pegaPompomRanking")||"[]"); } catch { return []; } }
+    async function saveScore(entry) {
+      const local=localScores(); local.push(entry); local.sort((a,b)=>b.score-a.score); localStorage.setItem("pegaPompomRanking",JSON.stringify(local.slice(0,30)));
+      if (!SUPABASE.url || !SUPABASE.anonKey) return;
+      try { await fetch(`${SUPABASE.url}/rest/v1/scores`,{method:"POST",headers:{apikey:SUPABASE.anonKey,Authorization:`Bearer ${SUPABASE.anonKey}`,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify(entry)}); } catch(e) { console.warn("Ranking global indisponível; pontuação salva localmente."); }
+    }
+    async function loadRanking() {
+      $("ranking").innerHTML=""; $("rankStatus").textContent="Carregando estrelinhas…"; let data=[];
+      if (SUPABASE.url && SUPABASE.anonKey) {
+        try { const res=await fetch(`${SUPABASE.url}/rest/v1/scores?select=name,score,hits&order=score.desc&limit=10`,{headers:{apikey:SUPABASE.anonKey,Authorization:`Bearer ${SUPABASE.anonKey}`}}); if(!res.ok) throw Error(); data=await res.json(); $("rankStatus").textContent="Ranking global · top 10"; } catch { data=localScores().slice(0,10); $("rankStatus").textContent="Sem conexão · mostrando ranking deste aparelho"; }
+      } else { data=localScores().slice(0,10); $("rankStatus").textContent="Ranking local · conecte o Supabase para torná-lo global"; }
+      if(!data.length) $("rankStatus").textContent="Ninguém pontuou ainda. Seja a primeira estrela!";
+      $("ranking").innerHTML=data.map((p,i)=>`<li class="${p.name===playerName?'me':''}"><span class="rank-num">${i<3?["🥇","🥈","🥉"][i]:i+1}</span><span class="rank-name">${escapeHtml(p.name)}</span><span class="rank-score">${Number(p.score)||0}</span></li>`).join("");
+    }
+    function escapeHtml(v) { const d=document.createElement("div"); d.textContent=String(v); return d.innerHTML; }
+    function openRanking(){ $("rankingModal").classList.remove("hidden"); loadRanking(); }
+    $("playBtn").addEventListener("click",startGame);
+    $("againBtn").addEventListener("click",startGame);
+    $("homeBtn").addEventListener("click",()=>show("welcome"));
+    $("rankingBtn").addEventListener("click",openRanking);
+    $("closeRanking").addEventListener("click",()=>$("rankingModal").classList.add("hidden"));
+    $("rankingModal").addEventListener("click",e=>{if(e.target===$("rankingModal")) $("rankingModal").classList.add("hidden")});
+    $("soundBtn").addEventListener("click",()=>{ soundOn=!soundOn; $("soundBtn").textContent=soundOn?"♫ Som ligado":"♫ Som desligado"; $("soundBtn").classList.toggle("on",soundOn); if(soundOn){initAudio();startLofi()}else stopLofi(); });
+    $("target").addEventListener("pointerdown",hit);
+    window.addEventListener("resize",()=>{ if(active) moveTarget(); });
+  </script>
 </body>
 </html>
